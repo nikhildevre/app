@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/app/static/css/main.eac1e252.css",
-    "main.js": "/app/static/js/main.1a47b681.js",
+    "main.js": "/app/static/js/main.d5d3c375.js",
     "static/media/pattern.svg": "/app/static/media/pattern.ffc1641cc6caade830a0281312f42e7c.svg",
     "static/media/Logo-04-min.svg": "/app/static/media/Logo-04-min.5497950a12f5546b78dfbcd9db4fbfeb.svg",
     "index.html": "/app/index.html",
     "static/media/file-excel-solid.svg": "/app/static/media/file-excel-solid.4560d16cab25cc4449285ad81ce40860.svg",
     "main.eac1e252.css.map": "/app/static/css/main.eac1e252.css.map",
-    "main.1a47b681.js.map": "/app/static/js/main.1a47b681.js.map"
+    "main.d5d3c375.js.map": "/app/static/js/main.d5d3c375.js.map"
   },
   "entrypoints": [
     "static/css/main.eac1e252.css",
-    "static/js/main.1a47b681.js"
+    "static/js/main.d5d3c375.js"
   ]
 }
