@@ -7,9 +7,10 @@
 <a href="https://www.facebook.com/people/Harmony-Project/100086772661697/"><img align="left" src="https://raw.githubusercontent.com//harmonydata/.github/main/profile/fb.svg" alt="Harmony | Facebook" width="21px"/></a>
 <a href="https://www.youtube.com/channel/UCraLlfBr0jXwap41oQ763OQ"><img align="left" src="https://raw.githubusercontent.com//harmonydata/.github/main/profile/yt.svg" alt="Harmony | YouTube" width="21px"/></a>
 
-# Harmony Front End 
+# Harmony Front End
 
 <!-- badges: start -->
+
 ![my badge](https://badgen.net/badge/Status/In%20Development/orange)
 [![License](https://img.shields.io/github/license/harmonydata/harmony)](https://github.com/harmonydata/harmony/blob/main/LICENSE)
 [![forks](https://img.shields.io/github/forks/harmonydata/app)](https://github.com/harmonydata/app/forks)
@@ -18,10 +19,10 @@
 
 This is the app in React which is running at https://harmonydata.ac.uk/app. It is not the blog which is at the base of the https://harmonydata.ac.uk domain at all paths other than /app.
 
-* 🪧 The source code of the Harmony static blog at https://harmonydata.ac.uk is in this repo: https://github.com/harmonydata/harmonydata.github.io. It is hosted with Github Pages.
-* 🪧 The Harmony Python library source code is here: https://github.com/harmonydata/harmony.
-* 🪧 The Harmony R library source code is here: https://github.com/harmonydata/harmony_r.
-* 🪧 The Harmony API source code is here: https://github.com/harmonydata/harmonyapi.
+- 🪧 The source code of the Harmony static blog at https://harmonydata.ac.uk is in this repo: https://github.com/harmonydata/harmonydata.github.io. It is hosted with Github Pages.
+- 🪧 The Harmony Python library source code is here: https://github.com/harmonydata/harmony.
+- 🪧 The Harmony R library source code is here: https://github.com/harmonydata/harmony_r.
+- 🪧 The Harmony API source code is here: https://github.com/harmonydata/harmonyapi.
 
 ## Installing on your local machine
 
@@ -73,10 +74,47 @@ This app is deployed to the main website using Github actions when there is a pu
 
 Ulster University is managing the domain `harmonydata.ac.uk` which is configured to point to the IPs of the Github Pages deployment.
 
+## Harmony export library
 
+This repository also includes the [distributable library](https://github.com/harmonydata/app/blob/master/src/components/HarmonyExport.js) to simplify making external links to the harmony model definition.
+
+To build this component run
+
+```
+npm run build:HarmonyExport
+```
+
+To use this component on other sites include the package:
+
+```
+<script src="https://harmonydata.ac.uk/app/js/harmony-export.js"></script>
+```
+
+You then have two routes to creating an harmony link - the easiest is using the custom web component `<harmony-export>` it provides. This takes care of creating the special link code and provides the harmony icon.
+
+```
+const harmonyLink = document.createElement("harmony-export");
+
+' questions can be defined as a simple text array
+harmonyLink.questions = ["question1", "question2" ...]
+
+' OR as an array of objects which must specify both question_text and question_no
+harmonyLink.questions = [{question_no:1, question_text:"question1"}, {question_no:2, question_text:"question2"} ...]
+
+' You can also optionally define the name for the instrument containing these questions
+harmonyLink.instrument_name = "PHQ-7";
+
+' the icon size defaults to 24px but you can alter it with:
+harmonyLink.size= "36px"
+
+' Finally - apply any styling to the component you need and add it to your DOM
+wrapper.append(harmonyLink);
+```
+
+The alternative method is to call the globally available function `createHarmonyUrl({questions, instrument_name})` This will return the bare URL needed to import your questions into the Harmony upload page. You will have to provide the means of following this link yourself. Note that you need to set a constant `target` for multiple links to ensure that the same session of the harmony site is reused to allow multiple imports into the same session.
 
 # How to contribute
 
 You can raise an issue in the [issue tracker](https://github.com/harmonydata/harmony/issues), and you can open a [pull request](https://github.com/harmonydata/harmony/pulls).
 
-Please contact us at  https://harmonydata.ac.uk/contact or write to thomas@fastdatascience.com if you would like to be involved in the project.
+Please contact us at https://harmonydata.ac.uk/contact or write to thomas@fastdatascience.com if you would like to be involved in the project.
