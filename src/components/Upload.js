@@ -7,7 +7,8 @@ import React, {
   useEffect,
 } from "react";
 import DragDrop from "./DragDrop";
-import GoogleDriveImport from "./GoogleDriveImport";
+// This requires more finessing to request the additional permissions needed smoothly - it may require google approval before it can be enabled
+//import GoogleDriveImport from "./GoogleDriveImport";
 import { useData } from "../contexts/DataContext";
 import { useParams } from "react-router-dom";
 import {
@@ -44,7 +45,7 @@ import { Base64 } from "js-base64";
 export default function Upload({
   appFileInfos,
   setAppFileInfos,
-  setApiData,
+  executeMatch,
   existingInstruments,
   ReactGA,
 }) {
@@ -116,9 +117,7 @@ export default function Upload({
 
         // if valid import - adding to the existing fileinfos - App contains a beforeunload to stash file infors between loads within session.
         if (imported.every((inst) => isValidImport(inst))) {
-          imported.map(
-            (i) => (i.instrument_id = "Imported" + String(new Date().getTime()))
-          );
+          imported.map((i) => (i.instrument_id = "Imported_" + Math.random()));
           setFileInfos([...fileInfos].concat(imported));
           syncFileInfos();
           return imported.length;
@@ -129,6 +128,7 @@ export default function Upload({
       toast.promise(
         new Promise((resolve, reject) => {
           if (importId.length > 20 && Base64.isValid(importId)) {
+            console.log("decoded", Base64.decode(importId));
             // Support the whole instrument being presented as a base64 encoded instrument object - This will only work for small instruments but enhances privacy and speed
             try {
               let imported = JSON.parse(Base64.decode(importId));
@@ -608,8 +608,10 @@ export default function Upload({
         state={!!importFeedback}
         setState={setImportFeedback}
       />
-
       <DragDrop filesReceiver={filesReceiver} sx={{ mt: "2rem" }} />
+      {/* //REMOVING for now - the firebase auth tokens do not cover the scopes for
+      drive access and we would need to request additional permissions as well
+      as get validated by google to enable this
       {currentUser &&
         currentUser.providerData &&
         currentUser.providerData
@@ -619,7 +621,7 @@ export default function Upload({
             filesReceiver={filesReceiver}
             sx={{ display: "flex", width: "100%", mt: "1rem" }}
           />
-        )}
+        )} */}
       <Stack
         direction={"row"}
         spacing={1}
@@ -656,15 +658,24 @@ export default function Upload({
             })
           : ""}
       </Box>
-
       <Button
         variant="contained"
         size="large"
         sx={{ margin: "2rem" }}
         disabled={!fileInfos || fileInfos.length === 0 || loading}
         onClick={() => {
+          console.log("executeMatch", executeMatch);
           setLoading(true);
-          match(fileInfos)
+          executeMatch()
+            .then((_) => {
+              history.push("/model");
+              setLoading(false);
+            })
+            .catch((e) => {
+              console.log(e);
+              setMatchError(true);
+            });
+          /*  match(fileInfos)
             .then((data) => {
               let simpleApi = simplifyApi(data, fileInfos);
               setApiData(simpleApi);
@@ -675,7 +686,7 @@ export default function Upload({
             .catch((e) => {
               console.log(e);
               setMatchError(true);
-            });
+            }); */
         }}
       >
         {!loading && <Typography>Harmonise</Typography>}

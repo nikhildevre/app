@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   Container,
   Box,
@@ -19,6 +19,7 @@ import {
   ThemeProvider,
   responsiveFontSizes,
 } from "@mui/material/styles";
+import { simplifyApi } from "../utilities/simplifyApi";
 import HarmonyAppBar from "./AppBar";
 import pattern from "../img/pattern.svg";
 import logoWithText from "../img/Logo-04-min.svg";
@@ -34,8 +35,10 @@ import MakeMeJSON from "./MakeMeJSON.js";
 import "react-toastify/dist/ReactToastify.css";
 import YouTube from "react-youtube";
 import "../css/youtube.css";
+import { useHistory } from "react-router-dom";
 
 function App() {
+  const history = useHistory();
   const [fullscreen, setFullscreen] = useState(false);
   const [existingInstruments, setExistingInstruments] = useState([]);
   const [apiData, setApiData] = useState({});
@@ -46,7 +49,13 @@ function App() {
   });
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const [mode, setMode] = useState();
-  const { storeHarmonisation, reportRating, exampleInstruments } = useData();
+  const {
+    storeHarmonisation,
+    reportRating,
+    exampleInstruments,
+    match,
+    currentModel,
+  } = useData();
   const [ratingValue, setRatingValue] = useState();
   const [computedMatches, setComputedMatches] = useState();
   const [fileInfos, setFileInfos] = useState();
@@ -136,6 +145,23 @@ function App() {
         return q.question_index === qidx;
       })[0];
   };
+
+  const executeMatch = useCallback(
+    (forceModel) => {
+      if (fileInfos)
+        return match(fileInfos, forceModel).then((data) => {
+          let simpleApi = simplifyApi(data, fileInfos);
+          setApiData(simpleApi);
+        });
+    },
+    [history, fileInfos]
+  );
+
+  useEffect(() => {
+    if (window.location.href.includes("/model")) {
+      executeMatch(currentModel);
+    }
+  }, [currentModel, executeMatch]);
 
   const makePublicShareLink = () => {
     let h = {};
@@ -461,9 +487,9 @@ function App() {
                   </Route>
                   <Route path="/import/:importId">
                     <Upload
+                      executeMatch={executeMatch}
                       appFileInfos={fileInfos}
                       setAppFileInfos={setFileInfos}
-                      setApiData={setApiData}
                       existingInstruments={existingInstruments}
                       ReactGA={ReactGA}
                     />
@@ -472,7 +498,7 @@ function App() {
                     <Upload
                       appFileInfos={fileInfos}
                       setAppFileInfos={setFileInfos}
-                      setApiData={setApiData}
+                      executeMatch={executeMatch}
                       existingInstruments={existingInstruments}
                       ReactGA={ReactGA}
                     />

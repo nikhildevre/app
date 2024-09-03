@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from "react";
+import React, { createContext, useCallback, useContext } from "react";
 import {
   doc,
   collection,
@@ -94,31 +94,42 @@ export function DataProvider({ children }) {
       timeout: 15000,
     });
   };
-  const match = (instruments) => {
-    return retryablePostData({
-      url: process.env.REACT_APP_API_MATCH,
-      data: { instruments: instruments, parameters: currentModel },
-      timeout: 30000,
-    });
-  };
-  const exampleInstruments = () => {
+  const match = useCallback(
+    // allow the forcing of a model
+    (instruments, model) => {
+      return retryablePostData({
+        url:
+          process.env.REACT_APP_API_MATCH + "?include_catalogue_matches=true",
+        data: {
+          instruments: instruments,
+          parameters: model || currentModel,
+        },
+        timeout: 30000,
+      });
+    },
+    [currentModel]
+  );
+
+  const exampleInstruments = useCallback(() => {
     return retryablePostData({
       url: process.env.REACT_APP_API_EXAMPLES,
       timeout: 5000,
     });
-  };
-  const getVersion = () => {
+  }, []);
+
+  const getVersion = useCallback(() => {
     return retryableGetData({
       url: process.env.REACT_APP_API_VERSION,
       timeout: 1500,
     }).then((data) => data.harmony_version || "unknown");
-  };
-  const getModels = () => {
+  }, []);
+
+  const getModels = useCallback(() => {
     return retryableGetData({
       url: process.env.REACT_APP_API_MODELS,
       timeout: 1500,
     });
-  };
+  }, []);
 
   const getSharedInstrument = async (docID) => {
     if (docID) {
