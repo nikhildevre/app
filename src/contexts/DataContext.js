@@ -78,15 +78,30 @@ export function DataProvider({ children }) {
             signal: controller.signal,
           });
           clearTimeout(id);
+          // If successful, resolve immediately
+          if (response.ok) {
+            resolve(response.json());
+            return; // Exit the loop and promise
+          }
         } catch (e) {
-          console.log(e);
-          reject(e);
+          console.log("Get rejection", e);
+          // Only reject if there are no more retries
+          if (retries === 0) {
+            reject(e);
+          }
         }
         retries--;
+        if (retries > 0) {
+          await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second
+        }
       }
-      resolve(response.json());
+      // If the loop completes without a successful response, reject
+      if (!(response && response.ok)) {
+        reject(new Error("Failed to fetch data after multiple retries"));
+      }
     });
   };
+
   const parse = (allFiles) => {
     return retryablePostData({
       url: process.env.REACT_APP_API_PARSE,
@@ -120,14 +135,14 @@ export function DataProvider({ children }) {
   const getVersion = useCallback(() => {
     return retryableGetData({
       url: process.env.REACT_APP_API_VERSION,
-      timeout: 1500,
+      timeout: 2500,
     }).then((data) => data.harmony_version || "unknown");
   }, []);
 
   const getModels = useCallback(() => {
     return retryableGetData({
       url: process.env.REACT_APP_API_MODELS,
-      timeout: 1500,
+      timeout: 2500,
     });
   }, []);
 
