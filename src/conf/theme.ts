@@ -1,18 +1,18 @@
 import "../css/Pragmatica.css";
 
-export const getDesignTokens = (mode) => ({
+export const getDesignTokens = (mode: string | undefined) => ({
   typography: {
     body1: {
       fontFamily: "Pragmatica, sans-serif",
       fontWeight: 300,
       lineHeight: "150%",
       fontSize: "0.9rem",
-      "@media (min-width:600px)":{
+      "@media (min-width:600px)": {
         fontSize: "1rem",
       },
-      "@media (min-width:900px)":{
+      "@media (min-width:900px)": {
         fontSize: "1.1rem",
-      }
+      },
     },
     caption: {
       fontFamily: "Pragmatica, sans-serif",
@@ -26,8 +26,8 @@ export const getDesignTokens = (mode) => ({
   },
   palette: {
     mode,
-    ...(mode === 'light'
-      ?{
+    ...(mode === "light"
+      ? {
           primary: {
             main: "#2b45ed",
           },
@@ -39,10 +39,10 @@ export const getDesignTokens = (mode) => ({
             paper: "#FEFCFB",
           },
           text: {
-            primary: "#131854"
-          }
-        }:
-        //Dark Mode
+            primary: "#131854",
+          },
+        }
+      : //Dark Mode
         {
           primary: {
             main: "#0de5b2",
@@ -55,10 +55,10 @@ export const getDesignTokens = (mode) => ({
             paper: "#131854",
           },
           text: {
-            primary: "#FEFCFB"
-          }
-        })
-      }
+            primary: "#FEFCFB",
+          },
+        }),
+  },
 });
 
 export const getThemedComponents = (mode) => ({
@@ -101,18 +101,18 @@ export const getThemedComponents = (mode) => ({
             },
           },
         }),
-        // Both Modes
-        MuiInputBase: {
-          styleOverrides: {
-            root: {
-              "& input": {
-                "&:-webkit-autofill": {
-                  transition:
-                    "background-color 50000s ease-in-out 0s, color 50000s ease-in-out 0s",
-                },
-              },
+    // Both Modes
+    MuiInputBase: {
+      styleOverrides: {
+        root: {
+          "& input": {
+            "&:-webkit-autofill": {
+              transition:
+                "background-color 50000s ease-in-out 0s, color 50000s ease-in-out 0s",
             },
           },
-        }
+        },
+      },
+    },
   },
 });
