@@ -32,6 +32,7 @@ const createHarmonyUrl = ({ questions, instrument_name }) => {
 
 // Create context menu item
 chrome.runtime.onInstalled.addListener(() => {
+  // Create different menu items for PDFs and regular pages
   chrome.contextMenus.create({
     id: "sendToHarmony",
     title: "Send to Harmony",
@@ -41,22 +42,9 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.local.set({ history: [] });
 });
 
-// Function to find or create Harmony tab
-async function findOrCreateHarmonyTab(url) {
-  // First, try to find an existing tab with our target name in the URL
-  const tabs = await chrome.tabs.query({});
-  const harmonyTab = tabs.find(
-    (tab) => tab.url && tab.url.includes(harmonyURL)
-  );
-
-  if (harmonyTab) {
-    // Update existing tab
-    await chrome.tabs.update(harmonyTab.id, { url: url, active: true });
-    await chrome.windows.update(harmonyTab.windowId, { focused: true });
-  } else {
-    // Create new tab
-    await chrome.tabs.create({ url: url });
-  }
+// Function to open Harmony URL in new tab
+function openHarmonyTab(url) {
+  chrome.tabs.create({ url: url });
 }
 
 // Listen for messages from popup
@@ -65,52 +53,40 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     findOrCreateHarmonyTab(request.url);
     return true;
   }
-  if (request.action === "returnCopied") {
-    findOrCreateHarmonyTab(request.url);
+  if (request.action === "processPdfText") {
+    processSelection(request.text, request.tab);
     return true;
   }
 });
 
-chrome.contextMenus.onClicked.addListener(function (info, tab) {
+chrome.contextMenus.onClicked.addListener(async function (info, tab) {
   if (info.menuItemId === "sendToHarmony") {
-    if (tab?.id > -1) {
-      chrome.scripting
-        .executeScript({
-          target: { tabId: tab.id },
-          function: () => {
-            const selection = document.getSelection();
-            return selection ? selection.toString() : "";
-          },
-        })
-        .then((resultArray) => {
-          const result = resultArray[0];
-          const selectedText =
-            result && result && result.result ? result.result : ""; // Handle various result possibilities
-          processSelection(selectedText, tab);
-        })
-        .catch((error) => {
-          console.error("Error getting selected text:", error);
-        });
-    } else {
-      // If tab.id is null (eg in a PDF), trigger the copy command and then read from clipboard
-      chrome.tabs
-        .sendMessage({
-          action: "copySelection",
-        })
-        .then((response) => {
-          if (response?.success) {
-            try {
-              navigator.clipboard
-                .readText()
-                .then((selectedText) => processSelection(selectedText, tab));
-            } catch (err) {
-              console.error("Failed to read clipboard contents: ", err);
-            }
-          }
-        })
-        .catch((error) => {
-          console.error("Error executing copy command:", error);
-        });
+    if (tab?.id === -1 || tab?.url?.toLowerCase().includes("pdf")) {
+      // For PDF tabs, show popup
+      chrome.action.openPopup();
+      return;
+    }
+
+    // For non-PDF tabs, use scripting API
+    try {
+      const resultArray = await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        function: () => {
+          const selection = document.getSelection();
+          return selection ? selection.toString() : "";
+        },
+      });
+      const selectedText = resultArray[0]?.result || "";
+      if (selectedText) {
+        processSelection(selectedText, tab);
+      }
+    } catch (error) {
+      console.error("Error getting selected text:", error);
+      chrome.action.setBadgeText({ text: "!" });
+      chrome.action.setBadgeBackgroundColor({ color: "#F44336" });
+      setTimeout(() => {
+        chrome.action.setBadgeText({ text: "" });
+      }, 2000);
     }
   }
 });

@@ -1,3 +1,27 @@
+// Check if we're dealing with a PDF tab
+chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+  const currentTab = tabs[0];
+  if (currentTab?.id === -1 || currentTab?.url?.toLowerCase().includes("pdf")) {
+    document.getElementById("pdfInput").style.display = "block";
+  }
+});
+
+// Handle PDF text submission
+document.getElementById("submitPdf").addEventListener("click", function () {
+  const text = document.getElementById("pdfText").value;
+  if (text) {
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      const currentTab = tabs[0];
+      chrome.runtime.sendMessage({
+        action: "processPdfText",
+        text: text,
+        tab: currentTab,
+      });
+      window.close();
+    });
+  }
+});
+
 // Function to format relative time
 function getRelativeTime(timestamp) {
   const now = new Date();
