@@ -127,8 +127,9 @@ function HarmonyAppBar() {
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="My Harmony">
+            <Tooltip key="My Harmony" title="My Harmony">
               <Avatar
+                key={(currentUser && currentUser.uid) || "anonUser"}
                 src={currentUser && currentUser.photoURL}
                 imgProps={{ referrerPolicy: "no-referrer" }}
                 onClick={handleOpenUserMenu}
@@ -219,8 +220,11 @@ function HarmonyAppBar() {
                 </MenuItem>
               ))}
               {!currentUser && [
-                <Divider />,
-                <p style={{ margin: "0 0.5rem", textAlign: "center" }}>
+                <Divider key="oauthSigninDiv" />,
+                <p
+                  key="oauthSigninText"
+                  style={{ margin: "0 0.5rem", textAlign: "center" }}
+                >
                   Signing in with one of the OAuth providers below allows you
                   access to My Harmony where you can save and share your
                   harmonisations.
@@ -259,7 +263,7 @@ function HarmonyAppBar() {
                   </Typography>
                 </MenuItem>
               )}
-              <Divider />
+              <Divider key="versionDiv" />
               {apiVersion && (
                 <Typography sx={{ mx: 1 }}>
                   Harmony API version: {apiVersion}

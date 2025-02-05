@@ -35,8 +35,10 @@ import MakeMeJSON from "./MakeMeJSON.js";
 import "react-toastify/dist/ReactToastify.css";
 import YouTube from "react-youtube";
 import "../css/youtube.css";
+import { useHistory } from "react-router-dom";
 
 function App() {
+  const history = useHistory();
   const [fullscreen, setFullscreen] = useState(false);
   const [existingInstruments, setExistingInstruments] = useState([]);
   const [apiData, setApiData] = useState({});
@@ -152,7 +154,7 @@ function App() {
           setApiData(simpleApi);
         });
     },
-    [match, fileInfos]
+    [history, fileInfos]
   );
 
   useEffect(() => {
