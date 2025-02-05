@@ -154,7 +154,7 @@ function App() {
           setApiData(simpleApi);
         });
     },
-    [history, fileInfos]
+    [match, fileInfos]
   );
 
   useEffect(() => {
