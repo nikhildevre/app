@@ -35,11 +35,9 @@ import {
 import { useHistory } from "react-router-dom";
 import InlineFeedback from "./InlineFeedback";
 import ExistingInstruments from "./ExistingInstruments";
-import { simplifyApi } from "../utilities/simplifyApi";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import pdfTableExtractor from "../utilities/pdf-table-extractor";
-import { useAuth } from "../contexts/AuthContext";
 import { Base64 } from "js-base64";
 
 export default function Upload({
@@ -49,7 +47,6 @@ export default function Upload({
   existingInstruments,
   ReactGA,
 }) {
-  const { currentUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [parseError, setParseError] = useState(false);
   const [matchError, setMatchError] = useState(false);
@@ -59,7 +56,7 @@ export default function Upload({
   const dirty = useRef(false);
   const localFileInfos = useRef();
   const history = useHistory();
-  const { match, parse, getSharedInstrument } = useData();
+  const { parse, getSharedInstrument } = useData();
   const { importId } = useParams();
 
   ReactGA.send({
