@@ -42,9 +42,22 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.local.set({ history: [] });
 });
 
-// Function to open Harmony URL in new tab
-function openHarmonyTab(url) {
-  chrome.tabs.create({ url: url });
+// Function to find or create Harmony tab
+async function findOrCreateHarmonyTab(url) {
+  // First, try to find an existing tab with our target name in the URL
+  const tabs = await chrome.tabs.query({});
+  const harmonyTab = tabs.find(
+    (tab) => tab.url && tab.url.includes(harmonyURL)
+  );
+
+  if (harmonyTab) {
+    // Update existing tab
+    await chrome.tabs.update(harmonyTab.id, { url: url, active: true });
+    await chrome.windows.update(harmonyTab.windowId, { focused: true });
+  } else {
+    // Create new tab
+    await chrome.tabs.create({ url: url });
+  }
 }
 
 // Listen for messages from popup
