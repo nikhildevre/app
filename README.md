@@ -118,3 +118,123 @@ The alternative method is to call the globally available function `createHarmony
 You can raise an issue in the [issue tracker](https://github.com/harmonydata/harmony/issues), and you can open a [pull request](https://github.com/harmonydata/harmony/pulls).
 
 Please contact us at https://harmonydata.ac.uk/contact or write to thomas@fastdatascience.com if you would like to be involved in the project.
+
+# Harmony Browser Extensions
+
+Browser extensions for sending selected text to Harmony. Available for Chrome, Firefox, and Safari.
+
+## Features
+
+- Right-click to send selected text to Harmony
+- Popup interface for pasting text from PDFs
+- Seamless integration with Harmony Data platform
+- Cross-browser support
+
+## Development
+
+The extensions are built using vanilla JavaScript and browser-specific Extension APIs. Each browser extension is located in its own directory:
+
+- `extensions/chrome/`: Chrome extension
+- `extensions/firefox/`: Firefox add-on
+- `extensions/safari/`: Safari extension
+
+### Common Components
+
+Each extension shares similar core functionality:
+- Context menu integration
+- Popup interface
+- Text selection handling
+- PDF text extraction
+
+### Local Development
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/harmonydata/harmony-browser-extension.git
+   cd harmony-browser-extension
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Load the extension in your browser:
+
+   **Chrome:**
+   - Open Chrome and go to `chrome://extensions/`
+   - Enable "Developer mode"
+   - Click "Load unpacked" and select the `extensions/chrome` directory
+
+   **Firefox:**
+   - Open Firefox and go to `about:debugging`
+   - Click "This Firefox" on the left
+   - Click "Load Temporary Add-on"
+   - Select the `extensions/firefox/manifest.json` file
+
+   **Safari:**
+   - Open Safari and go to Safari > Settings > Extensions
+   - Enable "Developer mode"
+   - Click "Load Extension"
+   - Select the `extensions/safari` directory
+
+## Publishing
+
+The extensions are automatically published to their respective stores when changes are pushed to the main branch. This is handled by GitHub Actions.
+
+### Chrome Web Store
+
+1. Go to the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
+2. Create a new item or select your existing extension
+3. Get your Extension ID from the URL
+4. Go to the "API Access" tab
+5. Create a new API key:
+   - Click "Create new credentials"
+   - Choose "Chrome Web Store API"
+   - Save the Client ID and Client Secret
+
+### Firefox Add-ons
+
+1. Go to the [Firefox Add-ons Developer Hub](https://addons.mozilla.org/developers/)
+2. Create a new add-on or select your existing one
+3. Get your Add-on ID
+4. Generate API credentials in the Developer Hub
+
+### Safari Extensions
+
+1. Go to the [Apple Developer Portal](https://developer.apple.com)
+2. Create a new Safari extension or select your existing one
+3. Get your Extension ID
+4. Generate API credentials in the Developer Portal
+
+### Configuring GitHub Secrets
+
+Add the following secrets to your GitHub repository (Settings > Secrets and variables > Actions):
+
+**Chrome:**
+- `CHROME_EXTENSION_ID`
+- `CHROME_CLIENT_ID`
+- `CHROME_CLIENT_SECRET`
+- `CHROME_REFRESH_TOKEN`
+
+**Firefox:**
+- `FIREFOX_EXTENSION_ID`
+- `FIREFOX_API_KEY`
+- `FIREFOX_API_SECRET`
+
+**Safari:**
+- `SAFARI_EXTENSION_ID`
+- `SAFARI_API_KEY`
+- `SAFARI_API_SECRET`
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

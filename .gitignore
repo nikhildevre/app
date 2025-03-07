@@ -1,9 +1,37 @@
-/build
+# Dependencies
 /node_modules
-/testPDFs
-package-lock.json
-/wireframes
-package-lock.json
-functions/venv
-functions/__pycache__
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+
+# Next.js
+/.next/
+/out/
+
+# Production
+/build
+
+# Misc
 .DS_Store
+*.pem
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local env files
+.env*.local
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Extension files
+/extensions/
+harmonydata.github.io.code-workspace
