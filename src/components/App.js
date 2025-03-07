@@ -118,11 +118,14 @@ function App() {
     }
     exampleInstruments()
       .then((data) => {
-        setExistingInstruments(data);
-        console.log(data);
+        if (Array.isArray(data)) {
+          setExistingInstruments(data);
+        } else {
+          console.error("Error fetching example instruments", data);
+        }
       })
       .catch((e) => {
-        console.log(e);
+        console.error("Error fetching example instruments", e);
       });
   }, [exampleInstruments]);
 

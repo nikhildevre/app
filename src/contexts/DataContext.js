@@ -30,7 +30,7 @@ export function DataProvider({ children }) {
     return new Promise(async (resolve, reject) => {
       var retries = 3;
       var response;
-      while (retries > 0 && !(response && response.ok)) {
+      while (retries > 0) {
         try {
           const controller = new AbortController();
           const id = setTimeout(() => controller.abort(), timeout);
@@ -48,20 +48,39 @@ export function DataProvider({ children }) {
             signal: controller.signal,
           });
           clearTimeout(id);
+
+          // Handle 404 immediately
+          if (response.status === 404) {
+            reject(new Error("Resource not found"));
+            return;
+          }
+
+          // Handle other non-200 responses
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          // Success case
+          resolve(response.json());
+          return;
         } catch (e) {
-          console.log(e);
-          reject(e);
+          console.log("Post error:", e);
+          retries--;
+          if (retries === 0) {
+            reject(e);
+          } else {
+            await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second before retry
+          }
         }
-        retries--;
       }
-      resolve(response.json());
     });
   };
+
   const retryableGetData = async ({ url = "", timeout = 5000 }) => {
     return new Promise(async (resolve, reject) => {
       var retries = 3;
       var response;
-      while (retries > 0 && !(response && response.ok)) {
+      while (retries > 0) {
         try {
           const controller = new AbortController();
           const id = setTimeout(() => controller.abort(), timeout);
@@ -78,26 +97,30 @@ export function DataProvider({ children }) {
             signal: controller.signal,
           });
           clearTimeout(id);
-          // If successful, resolve immediately
-          if (response.ok) {
-            resolve(response.json());
-            return; // Exit the loop and promise
+
+          // Handle 404 immediately
+          if (response.status === 404) {
+            reject(new Error("Resource not found"));
+            return;
           }
+
+          // Handle other non-200 responses
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          // Success case
+          resolve(response.json());
+          return;
         } catch (e) {
-          console.log("Get rejection", e);
-          // Only reject if there are no more retries
+          console.log("Get error:", e);
+          retries--;
           if (retries === 0) {
             reject(e);
+          } else {
+            await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second before retry
           }
         }
-        retries--;
-        if (retries > 0) {
-          await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second
-        }
-      }
-      // If the loop completes without a successful response, reject
-      if (!(response && response.ok)) {
-        reject(new Error("Failed to fetch data after multiple retries"));
       }
     });
   };
