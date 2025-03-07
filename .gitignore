@@ -6,3 +6,4 @@ package-lock.json
 package-lock.json
 functions/venv
 functions/__pycache__
+.DS_Store
