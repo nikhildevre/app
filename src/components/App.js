@@ -154,6 +154,20 @@ function App() {
       if (fileInfos)
         return match(fileInfos, forceModel).then((data) => {
           let simpleApi = simplifyApi(data, fileInfos);
+          
+          // Filter existing computedMatches to remove any references to removed instruments
+          setComputedMatches(prev => {
+            if (!prev) return prev;
+            const validQuestionIndices = new Set(
+              fileInfos.flatMap((f, i) => 
+                f.questions.map((_, qIdx) => qIdx)
+              )
+            );
+            return prev.filter(match => 
+              validQuestionIndices.has(match.qi) && validQuestionIndices.has(match.mqi)
+            );
+          });
+          
           setApiData(simpleApi);
         });
     },
