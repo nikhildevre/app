@@ -158,7 +158,7 @@ function HarmonyAppBar() {
               <MenuItem key="mode">
                 <ThemeToggle />
               </MenuItem>
-              <MenuItem key="language">
+              {/* <MenuItem key="language">
                 <Select
                   size="small"
                   id="language"
@@ -169,7 +169,7 @@ function HarmonyAppBar() {
                   <MenuItem value={"EN"}>English</MenuItem>
                   <MenuItem value={"PT"}>Portuguese</MenuItem>
                 </Select>
-              </MenuItem>
+              </MenuItem> */}
               <MenuItem key="model">
                 <FormControl sx={{ margin: "auto" }}>
                   <InputLabel id="models">Model</InputLabel>
