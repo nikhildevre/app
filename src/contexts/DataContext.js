@@ -158,14 +158,14 @@ export function DataProvider({ children }) {
   const getVersion = useCallback(() => {
     return retryableGetData({
       url: process.env.REACT_APP_API_VERSION,
-      timeout: 2500,
+      timeout: 10000,
     }).then((data) => data.harmony_version || "unknown");
   }, []);
 
   const getModels = useCallback(() => {
     return retryableGetData({
       url: process.env.REACT_APP_API_MODELS,
-      timeout: 2500,
+      timeout: 10000,
     });
   }, []);
 
