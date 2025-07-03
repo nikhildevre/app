@@ -35,10 +35,7 @@ import MakeMeJSON from "./MakeMeJSON.js";
 import "react-toastify/dist/ReactToastify.css";
 import YouTube from "react-youtube";
 import "../css/youtube.css";
-import { useHistory } from "react-router-dom";
-
 function App() {
-  const history = useHistory();
   const [fullscreen, setFullscreen] = useState(false);
   const [existingInstruments, setExistingInstruments] = useState([]);
   const [apiData, setApiData] = useState({});
@@ -154,20 +151,20 @@ function App() {
       if (fileInfos)
         return match(fileInfos, forceModel).then((data) => {
           let simpleApi = simplifyApi(data, fileInfos);
-          
+
           // Filter existing computedMatches to remove any references to removed instruments
-          setComputedMatches(prev => {
+          setComputedMatches((prev) => {
             if (!prev) return prev;
             const validQuestionIndices = new Set(
-              fileInfos.flatMap((f, i) => 
-                f.questions.map((_, qIdx) => qIdx)
-              )
+              fileInfos.flatMap((f, i) => f.questions.map((_, qIdx) => qIdx))
             );
-            return prev.filter(match => 
-              validQuestionIndices.has(match.qi) && validQuestionIndices.has(match.mqi)
+            return prev.filter(
+              (match) =>
+                validQuestionIndices.has(match.qi) &&
+                validQuestionIndices.has(match.mqi)
             );
           });
-          
+
           setApiData(simpleApi);
         });
     },

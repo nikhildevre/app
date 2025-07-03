@@ -84,9 +84,9 @@ function HarmonyAppBar() {
     }
   };
 
-  const handleLanguageMenuClick = (menuItem) => {
-    console.log(menuItem);
-  };
+  // const handleLanguageMenuClick = (menuItem) => {
+  //   console.log(menuItem);
+  // };
 
   const handleCloseUserMenu = () => {
     setAnchorUser(null);
