@@ -7,8 +7,6 @@ import React, {
   useEffect,
 } from "react";
 import DragDrop from "./DragDrop";
-// This requires more finessing to request the additional permissions needed smoothly - it may require google approval before it can be enabled
-//import GoogleDriveImport from "./GoogleDriveImport";
 import { useData } from "../contexts/DataContext";
 import { useParams } from "react-router-dom";
 import {
@@ -606,19 +604,6 @@ export default function Upload({
         setState={setImportFeedback}
       />
       <DragDrop filesReceiver={filesReceiver} sx={{ mt: "2rem" }} />
-      {/* //REMOVING for now - the firebase auth tokens do not cover the scopes for
-      drive access and we would need to request additional permissions as well
-      as get validated by google to enable this
-      {currentUser &&
-        currentUser.providerData &&
-        currentUser.providerData
-          .map((p) => p.providerId)
-          .includes("google.com") && (
-          <GoogleDriveImport
-            filesReceiver={filesReceiver}
-            sx={{ display: "flex", width: "100%", mt: "1rem" }}
-          />
-        )} */}
       <Stack
         direction={"row"}
         spacing={1}
