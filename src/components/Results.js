@@ -93,7 +93,7 @@ export default function Results({
   };
 
   useEffect(() => {
-    if (Object.keys(apiData).length === 0 && stateHash) {
+    if (stateHash) {
       getPublicHarmonisations(stateHash)
         .then((data) => {
           if (Array.isArray(data.apiData)) {

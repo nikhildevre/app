@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import {
   Box,
-  List,
   ListItem,
   ListItemButton,
   ListItemIcon,
@@ -107,7 +106,6 @@ export default function HarmonySidebar() {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [anchorUser, setAnchorUser] = useState(null);
   const [apiVersion, setApiVersion] = useState(null);
-  const [error, setError] = useState(null);
 
   const {
     currentUser,
@@ -155,7 +153,7 @@ export default function HarmonySidebar() {
       .then((ver) => {
         setApiVersion(ver);
       })
-      .catch((e) => setError("ERROR: API unreachable"));
+      .catch((e) => console.error("ERROR: API unreachable", e));
   }, [getVersion]);
 
   return (

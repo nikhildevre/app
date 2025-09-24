@@ -1,13 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import {
-  Container,
-  Box,
-  Slide,
-  useMediaQuery,
-  Link,
-  Typography,
-  Rating,
-} from "@mui/material";
+import { Box, useMediaQuery, Typography, Rating } from "@mui/material";
 import { HashRouter as Router, Switch, Route } from "react-router-dom";
 import Upload from "./Upload";
 import Results from "./Results";
@@ -22,8 +14,6 @@ import {
 import { simplifyApi } from "../utilities/simplifyApi";
 import HarmonySidebar from "./HarmonySidebar";
 import pattern from "../img/pattern.svg";
-import logoWithText from "../img/Logo-04-min.svg";
-import ResultsOptions from "./ResultsOptions";
 import { deepmerge } from "@mui/utils";
 import { ColorModeContext } from "../contexts/ColorModeContext";
 import { useData } from "../contexts/DataContext";
@@ -33,7 +23,6 @@ import CookieConsent, { getCookieConsentValue } from "react-cookie-consent";
 import { ToastContainer, toast } from "react-toastify";
 import MakeMeJSON from "./MakeMeJSON.js";
 import "react-toastify/dist/ReactToastify.css";
-import YouTube from "react-youtube";
 import "../css/youtube.css";
 
 function App() {
