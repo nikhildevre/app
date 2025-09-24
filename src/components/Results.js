@@ -1,10 +1,11 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { Paper, Card, Stack, Box, Link, Typography } from "@mui/material";
 import MatchUnit from "./MatchUnit";
 import { useParams } from "react-router-dom";
 import { useData } from "../contexts/DataContext";
 import AlertDialogSlide from "./Dialog";
 import InlineFeedback from "./InlineFeedback";
+import ResultsOptions from "./ResultsOptions";
 
 import { parse, test } from "liqe";
 
@@ -17,6 +18,12 @@ export default function Results({
   ReactGA,
   toaster,
   setComputedMatches,
+  makePublicShareLink,
+  saveToMyHarmony,
+  downloadExcel,
+  currentModel,
+  allModels,
+  handleModelSelect,
 }) {
   const { stateHash } = useParams();
   const { getPublicHarmonisations, reportMisMatch } = useData();
@@ -85,7 +92,7 @@ export default function Results({
     }
   };
 
-  useMemo(() => {
+  useEffect(() => {
     if (Object.keys(apiData).length === 0 && stateHash) {
       getPublicHarmonisations(stateHash)
         .then((data) => {
@@ -100,13 +107,7 @@ export default function Results({
           setSavedError(e);
         });
     }
-  }, [
-    stateHash,
-    apiData,
-    setApiData,
-    setResultsOptions,
-    getPublicHarmonisations,
-  ]);
+  }, [stateHash, setApiData, setResultsOptions, getPublicHarmonisations]);
 
   const safeTest = (query, haystack) => {
     let result = false;
@@ -258,6 +259,22 @@ export default function Results({
         },
       }}
     >
+      {/* Results Options */}
+      <Box sx={{ mb: 2 }}>
+        <ResultsOptions
+          resultsOptions={resultsOptions}
+          setResultsOptions={setResultsOptions}
+          makePublicShareLink={makePublicShareLink}
+          saveToMyHarmony={saveToMyHarmony}
+          downloadExcel={downloadExcel}
+          toaster={toaster}
+          ReactGA={ReactGA}
+          currentModel={currentModel}
+          allModels={allModels}
+          handleModelSelect={handleModelSelect}
+        />
+      </Box>
+
       {savedError && (
         <AlertDialogSlide
           title="No Data!"

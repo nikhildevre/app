@@ -23,6 +23,7 @@ import {
   TextField,
   Stack,
   Tooltip,
+  Link,
 } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import {
@@ -37,6 +38,10 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import pdfTableExtractor from "../utilities/pdf-table-extractor";
 import { Base64 } from "js-base64";
+import YouTube from "react-youtube";
+import "../css/youtube.css";
+import logoWithText from "../img/Logo-04-min.svg";
+import pattern from "../img/pattern.svg";
 
 export default function Upload({
   appFileInfos,
@@ -44,6 +49,8 @@ export default function Upload({
   executeMatch,
   existingInstruments,
   ReactGA,
+  fullscreen,
+  setFullscreen,
 }) {
   const [loading, setLoading] = useState(false);
   const [parseError, setParseError] = useState(false);
@@ -584,6 +591,100 @@ export default function Upload({
         padding: "1rem",
       }}
     >
+      {/* Intro Content */}
+      <Box
+        sx={{
+          background: "linear-gradient(-135deg,#27EDB9, #2E5FFF)",
+          backgroundImage: `linear-gradient(-135deg,#27EDB9DD, #2E5FFFAA), url(${pattern}), linear-gradient(-135deg,#27EDB9, #2E5FFF)`,
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          borderRadius: 2,
+          padding: "2rem",
+          color: "white",
+          mb: 3,
+        }}
+      >
+        <Box sx={{ width: "80%", maxWidth: 700, mx: "auto", mb: 3 }}>
+          <img
+            src={logoWithText}
+            alt="Harmony Logo"
+            style={{ width: "100%" }}
+          />
+        </Box>
+
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="h4" sx={{ color: "white", mb: 2 }}>
+            Harmonise questionnaire items
+          </Typography>
+          <Typography variant="body1" sx={{ color: "white", mb: 2 }}>
+            Harmony is an AI tool which can read questionnaires and find
+            questions with similar meanings, such as <i>anxiety</i> vs{" "}
+            <i>I feel anxious</i>.
+          </Typography>
+          <Typography variant="body1" sx={{ color: "white", mb: 2 }}>
+            Psychologists sometimes need to combine survey results, especially
+            when surveys have been run by different organisations or in
+            different countries.
+          </Typography>
+          <Typography variant="body1" sx={{ color: "white", mb: 2 }}>
+            Try two example PDFs:{" "}
+            <Link
+              target="gad7-pdf"
+              sx={{ color: "white" }}
+              href="https://adaa.org/sites/default/files/GAD-7_Anxiety-updated_0.pdf"
+            >
+              GAD-7 PDF
+            </Link>{" "}
+            vs{" "}
+            <Link
+              target="phq-pdf"
+              sx={{ color: "white" }}
+              href="https://www.apa.org/depression-guideline/patient-health-questionnaire.pdf"
+            >
+              PHQ-9 PDF
+            </Link>
+            .
+          </Typography>
+          <Typography variant="body2" sx={{ color: "white" }}>
+            <Link
+              sx={{ color: "white" }}
+              href="https://harmonydata.ac.uk/frequently-asked-questions"
+            >
+              FAQs
+            </Link>{" "}
+            -{" "}
+            <Link
+              sx={{ color: "white" }}
+              href="https://harmonydata.ac.uk/privacy-policy"
+            >
+              Privacy policy
+            </Link>{" "}
+            -{" "}
+            <Link
+              sx={{ color: "white" }}
+              href="https://harmonydata.ac.uk/formatting-help/"
+            >
+              Help with formatting
+            </Link>{" "}
+            -{" "}
+            <Link
+              sx={{ color: "white" }}
+              href="https://harmonydata.ac.uk/troubleshooting-harmony/"
+            >
+              Troubleshooting
+            </Link>
+          </Typography>
+        </Box>
+
+        <YouTube
+          className={"youtubeContainer" + (fullscreen ? "Full" : "")}
+          iframeClassName="youtubeIframe"
+          videoId="cEZppTBj1NI"
+          onPlay={() => setFullscreen(true)}
+          onPause={() => setFullscreen(false)}
+        />
+      </Box>
+
       <ToastContainer />
       <InlineFeedback
         message="The file could not be parsed"

@@ -233,6 +233,19 @@ export function DataProvider({ children }) {
     }
   };
 
+  const getMySavedResources = async () => {
+    const q = query(
+      collection(db, "saved_resources"),
+      where("uid", "==", currentUser.uid)
+    );
+    const querySnapshot = await getDocs(q);
+    let resources = [];
+    querySnapshot.forEach((doc) => {
+      resources.push({ id: doc.id, ...doc.data() });
+    });
+    return resources;
+  };
+
   // returns a promise
   const storeHarmonisation = async (harmonisation, docID) => {
     harmonisation.uid = currentUser.uid;
@@ -315,6 +328,7 @@ export function DataProvider({ children }) {
         setCurrentModel,
         storeHarmonisation,
         getMyHarmonisations,
+        getMySavedResources,
         getPublicHarmonisations,
         getSharedInstrument,
         reportMisMatch,

@@ -20,7 +20,7 @@ import {
   responsiveFontSizes,
 } from "@mui/material/styles";
 import { simplifyApi } from "../utilities/simplifyApi";
-import HarmonyAppBar from "./AppBar";
+import HarmonySidebar from "./HarmonySidebar";
 import pattern from "../img/pattern.svg";
 import logoWithText from "../img/Logo-04-min.svg";
 import ResultsOptions from "./ResultsOptions";
@@ -35,6 +35,7 @@ import MakeMeJSON from "./MakeMeJSON.js";
 import "react-toastify/dist/ReactToastify.css";
 import YouTube from "react-youtube";
 import "../css/youtube.css";
+
 function App() {
   const [fullscreen, setFullscreen] = useState(false);
   const [existingInstruments, setExistingInstruments] = useState([]);
@@ -44,21 +45,21 @@ function App() {
     searchTerm: "",
     intraInstrument: false,
   });
-  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
-  const [mode, setMode] = useState();
+  // Lock to light mode for compatibility with DiscoveryNext
+  const [mode, setMode] = useState("light");
   const {
     storeHarmonisation,
     reportRating,
     exampleInstruments,
     match,
     currentModel,
+    setCurrentModel,
+    getModels,
   } = useData();
   const [ratingValue, setRatingValue] = useState();
   const [computedMatches, setComputedMatches] = useState();
   const [fileInfos, setFileInfos] = useState();
-  useEffect(() => {
-    setMode(prefersDarkMode ? "dark" : "light");
-  }, [prefersDarkMode]);
+  const [allModels, setAllModels] = useState();
 
   useEffect(() => {
     const handleBeforeUnload = (event) => {
@@ -172,7 +173,12 @@ function App() {
   );
 
   useEffect(() => {
-    if (window.location.href.includes("/model")) {
+    // Only execute match if we're on a model route but not loading a saved harmonisation
+    // (saved harmonisations are loaded via URL params like /model/abc123)
+    if (
+      window.location.href.includes("/model") &&
+      !window.location.href.includes("/model/")
+    ) {
       executeMatch(currentModel);
     }
   }, [currentModel, executeMatch]);
@@ -234,7 +240,7 @@ function App() {
   const saveToMyHarmony = () => {
     setTimeout(ratingToast, 1000);
     let h = {};
-    h.apiData = JSON.parse(JSON.stringify(apiData));
+    h.apiData = apiData;
     h.resultsOptions = resultsOptions;
     h.public = false;
     h.created = new Date();
@@ -258,7 +264,7 @@ function App() {
         let q = getQuestion(cm.qi);
         let mq = getQuestion(cm.mqi);
         a.push({
-          instrument1: q.instrument.name,
+          instrument1: q.instrument.name || "Instrument " + i,
           question1_no: q.question_no,
           question1_text: q.question_text,
           question1_topics:
@@ -319,6 +325,20 @@ function App() {
     XLSXwriteFile(workbook, "Harmony.xlsx");
   };
 
+  const handleModelSelect = (event) => {
+    setCurrentModel(event.target.value);
+  };
+
+  useEffect(() => {
+    getModels()
+      .then((models) => {
+        setAllModels(models);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  }, [getModels]);
+
   let theme = useMemo(
     () =>
       createTheme(deepmerge(getDesignTokens(mode), getThemedComponents(mode))),
@@ -330,196 +350,92 @@ function App() {
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Container
-          disableGutters={true}
-          //
+        <Box
           sx={{
-            display: { lg: "flex", md: "block" },
-            flexDirection: useMediaQuery(theme.breakpoints.down("lg"))
-              ? "column"
-              : "row",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100vh",
-            width: "100%",
-            maxWidth: "100%!important",
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            minHeight: "100vh",
+            // Add subtle background image
+            backgroundImage: `linear-gradient(rgba(39, 237, 185, 0.1), rgba(46, 95, 255, 0.1)), url(${pattern})`,
+            backgroundSize: "cover",
+            backgroundRepeat: "no-repeat",
+            backgroundAttachment: "fixed",
           }}
         >
           <ToastContainer theme={theme.palette.mode} />
           <Router>
-            {/* Side bar for wide screens - narrow screens at top of screen and only on upload page*/}
+            <HarmonySidebar />
             <Box
+              component="main"
               sx={{
-                display: "flex",
-                boxSizing: "border-box",
-                width: { lg: "35%", md: "100%" },
-                minWidth: 300,
-                top: 0,
-                marginLeft: 0,
-                marginRight: "auto",
-                height: { lg: "100%", md: "unset" },
-                background: "linear-gradient(-135deg,#0de5b2, #2b45ed)",
-                backgroundImage: `linear-gradient(-135deg,#0de5b2DD, #2b45edAA), url(${pattern}), linear-gradient(-135deg,#0de5b2, #2b45ed)`,
-                backgroundSize: "cover",
-                backgroundRepeat: "no-repeat",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                padding: "2rem",
-                color: "white",
+                flexGrow: 1,
+                // Responsive spacing for sidebar
+                ml: { xs: 0, md: "72px" }, // No left margin on mobile, 72px on desktop
+                mt: { xs: "64px", md: 0 }, // 64px top margin on mobile, none on desktop
+                minHeight: { xs: "calc(100vh - 64px)", md: "100vh" }, // Account for top bar height
+                width: { xs: "100%", md: "calc(100% - 72px)" }, // Full width on mobile, minus sidebar on desktop
+                background: "rgba(250, 248, 255, 0.9)", // Semi-transparent background
+                padding: useMediaQuery(theme.breakpoints.only("xs"))
+                  ? "0.5rem"
+                  : "2rem",
               }}
             >
-              <Link href="#" sx={{ width: "80%", maxWidth: 700, mx: "auto" }}>
-                <img src={logoWithText} alt="Harmony Logo" />
-              </Link>
-
               <Switch>
+                <Route path="/login">
+                  <Login />
+                </Route>
                 <Route path="/model/:stateHash?">
-                  <ResultsOptions
-                    resultsOptions={resultsOptions}
+                  <Results
+                    fileInfos={fileInfos}
+                    apiData={apiData}
+                    setApiData={setApiData}
                     setResultsOptions={setResultsOptions}
+                    resultsOptions={resultsOptions}
+                    toaster={toast}
+                    computedMatches={computedMatches}
+                    setComputedMatches={setComputedMatches}
+                    ReactGA={ReactGA}
                     makePublicShareLink={makePublicShareLink}
                     saveToMyHarmony={saveToMyHarmony}
                     downloadExcel={downloadExcel}
-                    toaster={toast}
+                    currentModel={currentModel}
+                    allModels={allModels}
+                    handleModelSelect={handleModelSelect}
+                  />
+                </Route>
+                <Route path="/makeMeJSON">
+                  <MakeMeJSON
+                    appFileInfos={fileInfos}
+                    setAppFileInfos={setFileInfos}
+                    setApiData={setApiData}
+                    existingInstruments={existingInstruments}
                     ReactGA={ReactGA}
                   />
                 </Route>
+                <Route path="/import/:importId">
+                  <Upload
+                    executeMatch={executeMatch}
+                    appFileInfos={fileInfos}
+                    setAppFileInfos={setFileInfos}
+                    existingInstruments={existingInstruments}
+                    ReactGA={ReactGA}
+                    fullscreen={fullscreen}
+                    setFullscreen={setFullscreen}
+                  />
+                </Route>
                 <Route path="*">
-                  <div>
-                    <h1 style={{ color: "white" }}>
-                      Harmonise questionnaire items
-                    </h1>
-                    <p>
-                      Harmony is an AI tool which can read questionnaires and
-                      find questions with similar meanings, such as{" "}
-                      <i>anxiety</i> vs <i>I feel anxious</i>.
-                    </p>
-                    <p>
-                      Psychologists sometimes need to combine survey results,
-                      especially when surveys have been run by different
-                      organisations or in different countries.
-                    </p>
-                    <p>
-                      Try two example PDFs:{" "}
-                      <a
-                        target="gad7-pdf"
-                        style={{ color: "white" }}
-                        href="https://adaa.org/sites/default/files/GAD-7_Anxiety-updated_0.pdf"
-                      >
-                        GAD-7 PDF
-                      </a>{" "}
-                      vs{" "}
-                      <a
-                        target="phq-pdf"
-                        style={{ color: "white" }}
-                        href="https://www.apa.org/depression-guideline/patient-health-questionnaire.pdf"
-                      >
-                        PHQ-9 PDF
-                      </a>
-                      .
-                    </p>
-                    <p>
-                      <a
-                        style={{ color: "white" }}
-                        href="https://harmonydata.ac.uk/frequently-asked-questions"
-                      >
-                        FAQs
-                      </a>{" "}
-                      -{" "}
-                      <a
-                        style={{ color: "white" }}
-                        href="https://harmonydata.ac.uk/privacy-policy"
-                      >
-                        Privacy policy
-                      </a>{" "}
-                      -{" "}
-                      <a
-                        style={{ color: "white" }}
-                        href="https://harmonydata.ac.uk/formatting-help/"
-                      >
-                        Help with formatting
-                      </a>{" "}
-                      -{" "}
-                      <a
-                        style={{ color: "white" }}
-                        href="https://harmonydata.ac.uk/troubleshooting-harmony/"
-                      >
-                        Troubleshooting
-                      </a>
-                    </p>
-                  </div>
-                  <YouTube
-                    className={"youtubeContainer" + (fullscreen ? "Full" : "")}
-                    iframeClassName="youtubeIframe"
-                    videoId="cEZppTBj1NI"
-                    onPlay={() => setFullscreen(true)}
-                    onPause={() => setFullscreen(false)}
+                  <Upload
+                    appFileInfos={fileInfos}
+                    setAppFileInfos={setFileInfos}
+                    executeMatch={executeMatch}
+                    existingInstruments={existingInstruments}
+                    ReactGA={ReactGA}
+                    fullscreen={fullscreen}
+                    setFullscreen={setFullscreen}
                   />
                 </Route>
               </Switch>
             </Box>
-            <HarmonyAppBar></HarmonyAppBar>
-            <Slide in={true} direction="up">
-              <Box
-                sx={{
-                  width: { lg: "65%", md: "100%" },
-                  maxHeight: { lg: "100%" },
-                  paddingTop: { lg: "4rem" },
-                  overflow: "auto",
-                  padding: useMediaQuery(theme.breakpoints.only("xs"))
-                    ? "0.5rem"
-                    : "2rem",
-                }}
-              >
-                <Switch>
-                  {/* <Route path="/signup" component={Signup} /> */}
-                  {/* <Route path="/forgot-password" component={ForgotPassword} /> */}
-                  <Route path="/login">
-                    <Login />
-                  </Route>
-                  <Route path="/model/:stateHash?">
-                    <Results
-                      fileInfos={fileInfos}
-                      apiData={apiData}
-                      setApiData={setApiData}
-                      setResultsOptions={setResultsOptions}
-                      resultsOptions={resultsOptions}
-                      toaster={toast}
-                      computedMatches={computedMatches}
-                      setComputedMatches={setComputedMatches}
-                      ReactGA={ReactGA}
-                    />
-                  </Route>
-                  <Route path="/makeMeJSON">
-                    <MakeMeJSON
-                      appFileInfos={fileInfos}
-                      setAppFileInfos={setFileInfos}
-                      setApiData={setApiData}
-                      existingInstruments={existingInstruments}
-                      ReactGA={ReactGA}
-                    />
-                  </Route>
-                  <Route path="/import/:importId">
-                    <Upload
-                      executeMatch={executeMatch}
-                      appFileInfos={fileInfos}
-                      setAppFileInfos={setFileInfos}
-                      existingInstruments={existingInstruments}
-                      ReactGA={ReactGA}
-                    />
-                  </Route>
-                  <Route path="*">
-                    <Upload
-                      appFileInfos={fileInfos}
-                      setAppFileInfos={setFileInfos}
-                      executeMatch={executeMatch}
-                      existingInstruments={existingInstruments}
-                      ReactGA={ReactGA}
-                    />
-                  </Route>
-                </Switch>
-              </Box>
-            </Slide>
           </Router>
 
           <CookieConsent
@@ -538,7 +454,7 @@ function App() {
             This website uses analytics cookies to allow us to improve the user
             experience.{" "}
           </CookieConsent>
-        </Container>
+        </Box>
       </ThemeProvider>
     </ColorModeContext.Provider>
   );

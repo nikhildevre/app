@@ -16,6 +16,17 @@ import SvgIcon from "@mui/material/SvgIcon";
 import { useAuth } from "../contexts/AuthContext";
 import { useDebounce } from "react-use-custom-hooks";
 import PopperHelp from "./PopperHelp";
+import { Check as CheckIcon } from "@mui/icons-material";
+import {
+  CircularProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  OutlinedInput,
+  ListItemText,
+} from "@mui/material";
+import { Bookmark } from "lucide-react";
 
 export default function ResultsOptions({
   resultsOptions,
@@ -25,10 +36,14 @@ export default function ResultsOptions({
   downloadExcel,
   ReactGA,
   toaster,
+  currentModel,
+  allModels,
+  handleModelSelect,
 }) {
   const [threshold, setThreshold] = useState(resultsOptions.threshold);
   const { currentUser } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
+  const [saveStatus, setSaveStatus] = useState("idle"); // "idle", "saving", "saved"
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   useEffect(() => {
@@ -43,6 +58,17 @@ export default function ResultsOptions({
       setResultsOptions(thisOptions);
     }
   }, [debouncedSearchTerm, resultsOptions, setResultsOptions]);
+
+  const handleSave = async () => {
+    setSaveStatus("saving");
+    try {
+      await saveToMyHarmony();
+      setSaveStatus("saved");
+    } catch (error) {
+      console.error("Save failed:", error);
+      setSaveStatus("idle");
+    }
+  };
 
   return (
     <Card
@@ -148,6 +174,42 @@ export default function ResultsOptions({
           />
         </Stack>
         <Divider sx={{ mt: 1, mb: 1 }} />
+
+        {/* Model Selector */}
+        <Stack sx={{ mt: 1, mb: 1 }}>
+          <Typography id="model-selector" sx={{ mb: 1 }}>
+            AI Model
+          </Typography>
+          <FormControl size="small" fullWidth>
+            <InputLabel id="models">Model</InputLabel>
+            <Select
+              labelId="models"
+              id="modelcombo"
+              value={currentModel || ""}
+              onChange={handleModelSelect}
+              input={
+                <OutlinedInput sx={{ overflow: "hidden" }} label="Model" />
+              }
+              renderValue={(selected) =>
+                selected ? selected.framework + " (" + selected.model + ")" : ""
+              }
+            >
+              {allModels &&
+                allModels.map(
+                  (model) =>
+                    model.available && (
+                      <MenuItem key={model.model} value={model}>
+                        <ListItemText
+                          primary={model.framework + " (" + model.model + ")"}
+                        />
+                      </MenuItem>
+                    )
+                )}
+            </Select>
+          </FormControl>
+        </Stack>
+        <Divider sx={{ mt: 1, mb: 1 }} />
+
         <Stack
           direction="row"
           sx={{
@@ -161,6 +223,43 @@ export default function ResultsOptions({
               getShareLink={makePublicShareLink}
               ReactGA={ReactGA}
             />
+          )}
+          {currentUser && (
+            <Button
+              variant="contained"
+              onClick={() => {
+                ReactGA &&
+                  ReactGA.event({
+                    category: "Actions",
+                    action: "Save Harmonisation",
+                  });
+                handleSave();
+              }}
+              disabled={saveStatus === "saving"}
+              sx={{
+                minWidth: 120,
+                backgroundColor: saveStatus === "saved" ? "#4caf50" : undefined,
+                "&:hover": {
+                  backgroundColor:
+                    saveStatus === "saved" ? "#45a049" : undefined,
+                },
+              }}
+            >
+              {saveStatus === "saving" ? (
+                <CircularProgress size={20} sx={{ mr: 1, color: "white" }} />
+              ) : saveStatus === "saved" ? (
+                <CheckIcon sx={{ mr: 1 }} />
+              ) : (
+                <Bookmark size={20} style={{ marginRight: 8 }} />
+              )}
+              <Typography>
+                {saveStatus === "saving"
+                  ? "Saving..."
+                  : saveStatus === "saved"
+                  ? "Saved!"
+                  : "Save"}
+              </Typography>
+            </Button>
           )}
           <Button
             variant="contained"

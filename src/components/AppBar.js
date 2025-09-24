@@ -94,71 +94,69 @@ function HarmonyAppBar() {
 
   return (
     <AppBar
-      position="absolute"
+      position="fixed"
       sx={{
         background: "transparent",
         boxShadow: "none",
         top: 0,
+        right: 0,
+        left: { xs: 0, md: "72px" },
+        width: { xs: "100%", md: "calc(100% - 72px)" },
+        zIndex: 1100,
       }}
     >
-      <Container sx={{ maxWidth: "100%!important" }}>
-        <Toolbar disableGutters>
-          <Box
-            sx={{
-              flexGrow: 1,
+      <Box sx={{ display: "flex", justifyContent: "flex-end", p: 1 }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+          }}
+        >
+          {error && (
+            <Typography sx={{ color: "red", fontWeight: 900 }}>
+              {error}
+            </Typography>
+          )}
 
-              textAlign: "right",
-              paddingRight: 2,
-            }}
-          >
-            <Box
+          <Tooltip key="My Harmony" title="My Harmony">
+            <Avatar
+              key={(currentUser && currentUser.uid) || "anonUser"}
+              src={currentUser && currentUser.photoURL}
+              imgProps={{ referrerPolicy: "no-referrer" }}
+              onClick={handleOpenUserMenu}
               sx={{
                 display: "flex",
-                alignItems: "center",
-                justifyItems: "flex-end",
+                cursor: "pointer",
+                width: 40,
+                height: 40,
               }}
             >
-              {error && (
-                <Typography sx={{ color: "red", fontWeight: 900 }}>
-                  {error}
-                </Typography>
-              )}
-            </Box>
-          </Box>
-
-          <Box sx={{ flexGrow: 0 }}>
-            <Tooltip key="My Harmony" title="My Harmony">
-              <Avatar
-                key={(currentUser && currentUser.uid) || "anonUser"}
-                src={currentUser && currentUser.photoURL}
-                imgProps={{ referrerPolicy: "no-referrer" }}
-                onClick={handleOpenUserMenu}
-                sx={{ display: "flex" }}
-              >
-                {currentUser &&
-                  !currentUser.photoURL &&
-                  currentUser.email.substring(1).toUpperCase()}
-              </Avatar>
-            </Tooltip>
-            <Menu
-              sx={{ mt: "45px", maxWidth: "50%" }}
-              id="menu-appbar"
-              anchorEl={anchorUser}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={Boolean(anchorUser)}
-              onClose={handleCloseUserMenu}
-            >
-              <MenuItem key="mode">
+              {currentUser &&
+                !currentUser.photoURL &&
+                currentUser.email.substring(1).toUpperCase()}
+            </Avatar>
+          </Tooltip>
+          <Menu
+            sx={{ mt: "45px", maxWidth: "50%" }}
+            id="menu-appbar"
+            anchorEl={anchorUser}
+            anchorOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            open={Boolean(anchorUser)}
+            onClose={handleCloseUserMenu}
+          >
+            {/* Theme toggle hidden - locked to light mode for DiscoveryNext compatibility */}
+            {/* <MenuItem key="mode">
                 <ThemeToggle />
-              </MenuItem>
-              {/* <MenuItem key="language">
+              </MenuItem> */}
+            {/* <MenuItem key="language">
                 <Select
                   size="small"
                   id="language"
@@ -170,109 +168,105 @@ function HarmonyAppBar() {
                   <MenuItem value={"PT"}>Portuguese</MenuItem>
                 </Select>
               </MenuItem> */}
-              <MenuItem key="model">
-                <FormControl sx={{ margin: "auto" }}>
-                  <InputLabel id="models">Model</InputLabel>
-                  <Select
-                    size="small"
-                    labelId="models"
-                    id="modelcombo"
-                    value={currentModel}
-                    onChange={handleModelSelect}
-                    input={
-                      <OutlinedInput
-                        sx={{ overflow: "hidden" }}
-                        label="Model"
-                      />
-                    }
-                    renderValue={(selected) =>
-                      selected.framework + " (" + selected.model + ")"
-                    }
-                  >
-                    {allModels &&
-                      allModels.map(
-                        (model) =>
-                          model.available && (
-                            <MenuItem key={model.model} value={model}>
-                              <ListItemText
-                                primary={
-                                  model.framework + " (" + model.model + ")"
-                                }
-                              />
-                            </MenuItem>
-                          )
-                      )}
-                  </Select>
-                </FormControl>
-              </MenuItem>
-              <Divider />
+            <MenuItem key="model">
+              <FormControl sx={{ margin: "auto" }}>
+                <InputLabel id="models">Model</InputLabel>
+                <Select
+                  size="small"
+                  labelId="models"
+                  id="modelcombo"
+                  value={currentModel}
+                  onChange={handleModelSelect}
+                  input={
+                    <OutlinedInput sx={{ overflow: "hidden" }} label="Model" />
+                  }
+                  renderValue={(selected) =>
+                    selected.framework + " (" + selected.model + ")"
+                  }
+                >
+                  {allModels &&
+                    allModels.map(
+                      (model) =>
+                        model.available && (
+                          <MenuItem key={model.model} value={model}>
+                            <ListItemText
+                              primary={
+                                model.framework + " (" + model.model + ")"
+                              }
+                            />
+                          </MenuItem>
+                        )
+                    )}
+                </Select>
+              </FormControl>
+            </MenuItem>
+            <Divider />
 
-              {settings.map((setting) => (
-                <MenuItem
-                  key={setting}
-                  onClick={() => handleUserMenuClick(setting)}
-                  disabled={!currentUser}
-                >
-                  {SettingsIcons[setting]}
-                  <Typography textAlign="center" sx={{ pl: 1 }}>
-                    {setting}
-                  </Typography>
-                </MenuItem>
-              ))}
-              {!currentUser && [
-                <Divider key="oauthSigninDiv" />,
-                <p
-                  key="oauthSigninText"
-                  style={{ margin: "0 0.5rem", textAlign: "center" }}
-                >
-                  Signing in with one of the OAuth providers below allows you
-                  access to My Harmony where you can save and share your
-                  harmonisations.
-                </p>,
-              ]}
-              {!currentUser && (
-                <MenuItem
-                  key="SSOGoogle"
-                  onClick={() => signInWithGoogle().then(handleCloseUserMenu)}
-                >
-                  <GoogleIcon />
-                  <Typography textAlign="center" sx={{ pl: 1 }}>
-                    Sign in with Google
-                  </Typography>
-                </MenuItem>
-              )}
-              {!currentUser && (
-                <MenuItem
-                  key="SSOGithub"
-                  onClick={() => signInWithGitHub().then(handleCloseUserMenu)}
-                >
-                  <GitHubIcon />
-                  <Typography textAlign="center" sx={{ pl: 1 }}>
-                    Sign in with GitHub
-                  </Typography>
-                </MenuItem>
-              )}
-              {!currentUser && (
-                <MenuItem
-                  key="SSOTwitter"
-                  onClick={() => signInWithTwitter().then(handleCloseUserMenu)}
-                >
-                  <TwitterIcon />
-                  <Typography textAlign="center" sx={{ pl: 1 }}>
-                    Sign in with Twitter
-                  </Typography>
-                </MenuItem>
-              )}
-              <Divider key="versionDiv" />
-              {apiVersion && (
-                <Typography sx={{ mx: 1 }}>
-                  Harmony API version: {apiVersion}
+            {settings.map((setting) => (
+              <MenuItem
+                key={setting}
+                onClick={() => handleUserMenuClick(setting)}
+                disabled={!currentUser}
+              >
+                {SettingsIcons[setting]}
+                <Typography textAlign="center" sx={{ pl: 1 }}>
+                  {setting}
                 </Typography>
-              )}
-            </Menu>
-          </Box>
-        </Toolbar>
-      </Container>
+              </MenuItem>
+            ))}
+            {!currentUser && [
+              <Divider key="oauthSigninDiv" />,
+              <p
+                key="oauthSigninText"
+                style={{ margin: "0 0.5rem", textAlign: "center" }}
+              >
+                Signing in with one of the OAuth providers below allows you
+                access to My Harmony where you can save and share your
+                harmonisations.
+              </p>,
+            ]}
+            {!currentUser && (
+              <MenuItem
+                key="SSOGoogle"
+                onClick={() => signInWithGoogle().then(handleCloseUserMenu)}
+              >
+                <GoogleIcon />
+                <Typography textAlign="center" sx={{ pl: 1 }}>
+                  Sign in with Google
+                </Typography>
+              </MenuItem>
+            )}
+            {!currentUser && (
+              <MenuItem
+                key="SSOGithub"
+                onClick={() => signInWithGitHub().then(handleCloseUserMenu)}
+              >
+                <GitHubIcon />
+                <Typography textAlign="center" sx={{ pl: 1 }}>
+                  Sign in with GitHub
+                </Typography>
+              </MenuItem>
+            )}
+            {!currentUser && (
+              <MenuItem
+                key="SSOTwitter"
+                onClick={() => signInWithTwitter().then(handleCloseUserMenu)}
+              >
+                <TwitterIcon />
+                <Typography textAlign="center" sx={{ pl: 1 }}>
+                  Sign in with Twitter
+                </Typography>
+              </MenuItem>
+            )}
+            <Divider key="versionDiv" />
+            {apiVersion && (
+              <Typography sx={{ mx: 1 }}>
+                Harmony API version: {apiVersion}
+              </Typography>
+            )}
+          </Menu>
+        </Box>
+      </Box>
     </AppBar>
   );
 }
