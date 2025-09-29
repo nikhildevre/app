@@ -215,6 +215,7 @@ export default function HarmonySidebar() {
 
             return (
               <ListItemButton
+                disabled={isExternal}
                 key={item.text}
                 component={isExternal ? "a" : Link}
                 href={isExternal ? item.href : undefined}
@@ -364,6 +365,7 @@ export default function HarmonySidebar() {
             return (
               <ListItem key={item.text} disablePadding>
                 <ListItemButton
+                  disabled={isExternal}
                   component={isExternal ? "a" : Link}
                   href={isExternal ? item.href : undefined}
                   to={isExternal ? undefined : item.href}
